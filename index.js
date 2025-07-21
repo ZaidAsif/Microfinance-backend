@@ -57,6 +57,10 @@ app.use('/auth', authRoutes)
 
 app.use('/slip', slipRoutes)
 
+app.get('/', (req, res) => {
+    sendResponse(res, 200, null, false, 'Welcome to Saylani Microfinance Backend');
+});
+
 
 app.listen(port, () => {
     console.log(`server is running on Port:${port}`);
