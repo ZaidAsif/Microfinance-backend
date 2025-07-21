@@ -22,11 +22,11 @@ router.post('/generate', authenticateUser, async (req, res) => {
 
     // Generate PDF and QR Code
     generatePDFSlip({ token, date, time, location, user: req.user }, filePath);
-    await generateQRCode(`http://localhost:4000/slip/${token}`);
+    await generateQRCode(`https://microfinance-backend-nine.vercel.app/slip/${token}`);
 
     const appointment = await Appointments.create({
       userId, loanId, token, date, time, location,
-      slipUrl: `/slips/${token}.pdf`,
+      slipUrl: `https://microfinance-backend-nine.vercel.app/slips/${token}.pdf`,
     });
 
     sendResponse(res, 200, appointment, false, "Slip generated successfully");
