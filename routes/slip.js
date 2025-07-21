@@ -1,4 +1,3 @@
-
 import express from 'express';
 import { getNextAvailableSlot } from '../utils/scheduleAppointment.js';
 import { generatePDFSlip } from '../utils/generatePDF.js';
@@ -6,6 +5,7 @@ import { generateQRCode } from '../utils/generateQRCode.js';
 import Appointments from '../models/appointment.js';
 import authenticateUser from "../middlewares/authenticateUser.js";
 import sendResponse from "../helpers/sendResponse.js";
+import sendEmailFunc from "../helpers/sendEmailFunc.js";
 
 const router = express.Router();
 
@@ -22,12 +22,25 @@ router.post('/generate', authenticateUser, async (req, res) => {
 
     // Generate PDF and QR Code
     generatePDFSlip({ token, date, time, location, user: req.user }, filePath);
-    await generateQRCode(`https://microfinance-backend-nine.vercel.app/slip/${token}`);
+    await generateQRCode(`https://microfinance-backend-nine.vercel.app/tmp/${token}`);
 
     const appointment = await Appointments.create({
       userId, loanId, token, date, time, location,
-      slipUrl: `https://microfinance-backend-nine.vercel.app/slips/${token}.pdf`,
+      slipUrl: `https://microfinance-backend-nine.vercel.app/tmp/${token}.pdf`,
     });
+
+    // After appointment is created
+    await sendEmailFunc(
+      req.user.email,
+      "Your appointment slip is attached.",
+      [
+        {
+          filename: `${token}.pdf`,
+          path: filePath,
+          contentType: 'application/pdf'
+        }
+      ]
+    );
 
     sendResponse(res, 200, appointment, false, "Slip generated successfully");
   } catch (err) {

@@ -13,13 +13,14 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendEmailFunc = async (to, message) => {
+const sendEmailFunc = async (to, message, attachments = []) => {
   try {
     await transporter.sendMail({
       from: `"Microfinance App" <${senderEmail}>`,
       to,
       subject: "Loan Application Credentials",
       text: message,
+      attachments, // <-- this line is required
     });
     console.log("Email sent successfully");
   } catch (error) {
