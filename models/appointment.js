@@ -10,5 +10,7 @@ const appointmentSchema = new mongoose.Schema({
   slipUrl: { type: String }, 
 }, { timestamps: true });
 
+appointmentSchema.index({ date: 1, time: 1 }, { unique: true });
+
 const Appointments = mongoose.model('Appointments', appointmentSchema);
 export default Appointments;

@@ -123,9 +123,9 @@ router.put(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, email, phone } = req.body;
+      const { name, email, phone, isAdmin } = req.body;
 
-      if (!name && !email && !phone) {
+      if (!name && !email && !phone && isAdmin === undefined) {
         return sendResponse(
           res,
           400,
@@ -137,7 +137,7 @@ router.put(
 
       const updatedUser = await Users.findByIdAndUpdate(
         id,
-        { name, email, phone },
+        { name, email, phone, isAdmin },
         { new: true }
       );
 
@@ -176,47 +176,117 @@ router.delete(
   }
 );
 
-router.post("/users/create",authenticateUser , authenticateAdmin, async (req, res) => {
+router.post(
+  "/users/create",
+  authenticateUser,
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      const { name, email, cnic, password, isAdmin } = req.body;
+
+      // Check if all required fields are provided
+      if (!name || !email || !cnic || !password || isAdmin === undefined) {
+        return sendResponse(res, 400, null, true, "All fields are required.");
+      }
+
+      // Check if user already exists by email or CNIC
+      const existingUserByEmail = await Users.findOne({ email });
+      const existingUserByCnic = await Users.findOne({ cnic });
+
+      if (existingUserByEmail) {
+        return sendResponse(
+          res,
+          400,
+          null,
+          true,
+          "Email is already registered."
+        );
+      }
+
+      if (existingUserByCnic) {
+        return sendResponse(
+          res,
+          400,
+          null,
+          true,
+          "CNIC is already registered."
+        );
+      }
+
+      // Hash the password before saving
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create new user
+      const newUser = new Users({
+        name,
+        email,
+        cnic,
+        password: hashedPassword,
+        isAdmin,
+      });
+
+      await newUser.save();
+
+      sendEmailFunc(email, `Your login password: ${password}`);
+
+      sendResponse(res, 201, newUser, false, "User created successfully!");
+    } catch (error) {
+      console.error(error);
+      sendResponse(res, 500, null, true, "Error while creating user.");
+    }
+  }
+);
+
+router.get(
+  "/applications",
+  authenticateUser,
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endOfMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+        23,
+        59,
+        59
+      );
+
+      const applications = await Loans.find({
+        createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+      })
+        .populate("userId")
+        .populate("appointmentDetails");
+
+      sendResponse(
+        res,
+        200,
+        applications,
+        false,
+        "Applications fetched for current month"
+      );
+    } catch (err) {
+      console.error(err);
+      sendResponse(res, 500, null, true, "Error fetching applications");
+    }
+  }
+);
+
+router.get('/applications/month', authenticateUser, authenticateAdmin, async (req, res) => {
+  const { start, end } = req.query;
+
   try {
-    const { name, email, cnic, password, isAdmin } = req.body;
+    const apps = await Loans.find({
+      createdAt: { $gte: new Date(start), $lte: new Date(end) },
+    })
+    .populate('userId')
+    .populate('appointmentDetails');
 
-    // Check if all required fields are provided
-    if (!name || !email || !cnic || !password || isAdmin === undefined) {
-      return sendResponse(res, 400, null, true, "All fields are required.");
-    }
-
-    // Check if user already exists by email or CNIC
-    const existingUserByEmail = await Users.findOne({ email });
-    const existingUserByCnic = await Users.findOne({ cnic });
-
-    if (existingUserByEmail) {
-      return sendResponse(res, 400, null, true, "Email is already registered.");
-    }
-
-    if (existingUserByCnic) {
-      return sendResponse(res, 400, null, true, "CNIC is already registered.");
-    }
-
-    // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new user
-    const newUser = new Users({
-      name,
-      email,
-      cnic,
-      password: hashedPassword,
-      isAdmin,
-    });
-
-    await newUser.save();
-
-    sendEmailFunc(email, `Your login password: ${password}`);
-
-    sendResponse(res, 201, newUser, false, "User created successfully!");
+    sendResponse(res, 200, apps, false, 'Monthly applications fetched');
   } catch (error) {
-    console.error(error);
-    sendResponse(res, 500, null, true, "Error while creating user.");
+    sendResponse(res, 500, null, true, 'Error loading applications');
   }
 });
 

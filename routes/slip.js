@@ -12,50 +12,55 @@ import path from 'path';
 const router = express.Router();
 
 router.post('/generate', authenticateUser, async (req, res) => {
+  let appointment;
+let attempts = 0;
+const maxAttempts = 5;
+
+while (!appointment && attempts < maxAttempts) {
   try {
-    const { userId, loanId } = req.body;
-
-    const token = `MF-${Math.floor(1000 + Math.random() * 9000)}`;
-    
     const { date, time } = await getNextAvailableSlot();
+    const token = `MF-${Math.floor(1000 + Math.random() * 9000)}`;
     const location = "Saylani Office - Karachi";
-
     const filePath = path.join('/tmp', `${token}.pdf`);
 
     await generatePDFSlip({ token, date, time, location, user: req.user }, filePath);
-    
     await generateQRCode(`https://microfinance-backend-nine.vercel.app/tmp/${token}`);
-    
-    const appointment = await Appointments.create({
+
+    appointment = await Appointments.create({
       userId,
       loanId,
       token,
       date,
       time,
       location,
-      slipUrl: `https://microfinance-backend-nine.vercel.app/tmp/${token}.pdf`, // Temporary URL for the file
+      slipUrl: `https://microfinance-backend-nine.vercel.app/tmp/${token}.pdf`,
     });
 
     await sendEmailFunc(
       req.user.email,
       "Your appointment slip is attached.",
-      [
-        {
-          filename: `${token}.pdf`,
-          path: filePath,
-          contentType: 'application/pdf',
-        }
-      ]
+      [{
+        filename: `${token}.pdf`,
+        path: filePath,
+        contentType: 'application/pdf',
+      }]
     );
 
     fs.unlinkSync(filePath);
-
     sendResponse(res, 200, appointment, false, "Slip generated successfully");
-    
   } catch (err) {
-    console.error(err);
-    sendResponse(res, 500, null, true, "Slip generation failed");
+    if (err.code === 11000) {
+      attempts++;
+    } else {
+      console.error(err);
+      return sendResponse(res, 500, null, true, "Slip generation failed");
+    }
   }
+}
+
+if (!appointment) {
+  sendResponse(res, 409, null, true, "Could not assign appointment. Please try again.");
+}
 });
 
 export default router;

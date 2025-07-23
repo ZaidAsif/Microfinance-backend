@@ -36,7 +36,7 @@ const loanCategories = [
     {
         name: "Education Loans",
         subcategories: ["University Fees", "Child Fees Loan"],
-        maxLoan: "Based on Requirement",
+        maxLoan: 100000,
         duration: 4,
     },
 ];
