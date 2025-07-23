@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 
 const loanSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true },
     category: { type: String, required: true },
     subcategory: { type: String, required: true },
     amount: { type: Number, required: true },
     period: { type: Number, required: true },
-    monthlyInstallment: { type: Number, required: true }, 
+    monthlyInstallment: { type: Number, required: true },
     status: {type: String, enum: ["Pending", "Approved", "Rejected"], required: true, default: "Pending"},
     address: { type: String },
     phone: { type: String },
@@ -23,6 +23,16 @@ const loanSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+loanSchema.virtual('appointmentDetails', {
+  ref: 'Appointments',
+  localField: '_id',
+  foreignField: 'loanId',
+  justOne: true,
+});
+
+loanSchema.set('toJSON', { virtuals: true });
+loanSchema.set('toObject', { virtuals: true });
+
 const Loans =  mongoose.model("Loans", loanSchema);
 
-export default Loans
+export default Loans;

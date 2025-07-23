@@ -13,6 +13,7 @@ import jwt from 'jsonwebtoken';
 import Users from './models/users.js';
 import emailVerificationRoutes from './routes/emailverification.js';
 import loanRoutes from './routes/loan.js'
+import adminRoutes from './routes/admin.js'
 
 
 
@@ -53,13 +54,16 @@ app.use('/', emailVerificationRoutes);
 
 app.use('/loan', loanRoutes);
 
-app.use('/auth', authRoutes)
+app.use('/auth', authRoutes);
 
-app.use('/slip', slipRoutes)
+app.use('/slip', slipRoutes);
+
+app.use('/admin', adminRoutes);
 
 app.get('/', (req, res) => {
     sendResponse(res, 200, null, false, 'Welcome to Saylani Microfinance Backend');
 });
+
 
 
 app.listen(port, () => {
