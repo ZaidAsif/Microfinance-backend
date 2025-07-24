@@ -22,6 +22,7 @@ while (!appointment && attempts < maxAttempts) {
     const token = `MF-${Math.floor(1000 + Math.random() * 9000)}`;
     const location = "Saylani Office - Karachi";
     const filePath = path.join('/tmp', `${token}.pdf`);
+    const {loanId, userId} = req.body;
 
     await generatePDFSlip({ token, date, time, location, user: req.user }, filePath);
     await generateQRCode(`https://microfinance-backend-nine.vercel.app/tmp/${token}`);
