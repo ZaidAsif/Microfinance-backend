@@ -156,7 +156,7 @@ router.post("/additionalInfo", authenticateUser, async (req, res) => {
   try {
     const {
       id,
-      address,
+      city,
       phone,
       guarantor1Name,
       guarantor1Cnic,
@@ -175,7 +175,7 @@ router.post("/additionalInfo", authenticateUser, async (req, res) => {
     }
 
     // Add or update additional info fields
-    loan.address = address;
+    loan.city = city;
     loan.phone = phone;
     loan.guarantor1Name = guarantor1Name;
     loan.guarantor1Cnic = guarantor1Cnic;

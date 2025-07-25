@@ -11,24 +11,6 @@ import sendEmailFunc from "../helpers/sendEmailFunc.js";
 const router = express.Router();
 
 router.get(
-  "/applications",
-  authenticateUser,
-  authenticateAdmin,
-  async (req, res) => {
-    try {
-      const loans = await Loans.find()
-        .populate("userId")
-        .populate("appointmentDetails");
-      console.log("Populated Loans:", JSON.stringify(loans, null, 2));
-      sendResponse(res, 200, loans, false, "All loan applications fetched");
-    } catch (error) {
-      console.error(error);
-      sendResponse(res, 500, null, true, "Failed to fetch applications");
-    }
-  }
-);
-
-router.get(
   "/applications/filter",
   authenticateUser,
   authenticateAdmin,

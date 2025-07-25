@@ -9,7 +9,7 @@ const loanSchema = new mongoose.Schema(
     period: { type: Number, required: true },
     monthlyInstallment: { type: Number, required: true },
     status: {type: String, enum: ["Pending", "Approved", "Rejected"], required: true, default: "Pending"},
-    address: { type: String },
+    city: { type: String },
     phone: { type: String },
     guarantor1Name: { type: String },
     guarantor1Cnic: { type: String },

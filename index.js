@@ -22,7 +22,7 @@ import adminRoutes from './routes/admin.js'
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: "https://microfinance-platform.vercel.app",
   }));
 app.use(morgan('short'));
 
