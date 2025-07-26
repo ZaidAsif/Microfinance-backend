@@ -63,22 +63,19 @@ router.post("/apply", async (req, res) => {
   
       let password;
       if (!user) {
-        password = Math.random().toString(36).slice(-8); // Generate random password
+        password = Math.random().toString(36).slice(-8); 
         const hashedPassword = await bcrypt.hash(password, 10);
   
         user = new Users({ name, email, cnic, password: hashedPassword });
         await user.save();
   
-        // Send email with credentials
-        sendEmailFunc(email, `Your login password: ${password}`);
+        await sendEmailFunc(email, `Your login password: ${password}`);
       }
   
-      // Generate JWT token
       const token = jwt.sign({ _id: user._id, email: user.email }, tokenSecret, { expiresIn: "7d" });
   
 
   
-      // Create Loan Entry
       const newLoan = new Loans({
         userId: user._id,
         category,
@@ -116,7 +113,6 @@ router.post("/apply", async (req, res) => {
   });
 
 
-// Endpoint to get user's pending loans
 router.get("/myPendingLoans", authenticateUser, async (req, res) => {
   try {
     const pendingLoans = await Loans.find({ userId: req.user._id, status: "Pending" });
@@ -151,7 +147,6 @@ router.post("/pendingLoanDetail", authenticateUser, async (req, res) => {
 )
 
 
-// Endpoint to add additional info to a loan
 router.post("/additionalInfo", authenticateUser, async (req, res) => {
   try {
     const {
@@ -168,13 +163,11 @@ router.post("/additionalInfo", authenticateUser, async (req, res) => {
       guarantor2Location
     } = req.body;
 
-    // Find the loan by id and user
     const loan = await Loans.findOne({ _id: id, userId: req.user._id });
     if (!loan) {
       return sendResponse(res, 404, null, true, "Loan not found.");
     }
 
-    // Add or update additional info fields
     loan.city = city;
     loan.phone = phone;
     loan.guarantor1Name = guarantor1Name;

@@ -20,7 +20,7 @@ const sendEmailFunc = async (to, message, attachments = []) => {
       to,
       subject: "Loan Application Credentials",
       text: message,
-      attachments, // <-- this line is required
+      attachments, 
     });
     console.log("Email sent successfully");
   } catch (error) {
