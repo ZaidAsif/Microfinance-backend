@@ -20,6 +20,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
     origin: "https://microfinance-platform.vercel.app",
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   }));
 app.use(morgan('short'));
 
@@ -32,14 +33,6 @@ mongoose
     .then(() => console.log("=====DATABASE CONNECTED====="))
     .catch(() => console.log("=====DATABASE CONNECTION FAILED"))
 
-
-const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-        user: senderEmail,
-        pass: senderPassword
-    }
-})
 
 
 
