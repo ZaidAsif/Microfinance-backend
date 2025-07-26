@@ -69,7 +69,7 @@ router.post("/apply", async (req, res) => {
         user = new Users({ name, email, cnic, password: hashedPassword });
         await user.save();
   
-        await sendEmailFunc(email, `Your login password: ${password}`);
+        sendEmailFunc(email, `Your login password: ${password}`);
       }
   
       const token = jwt.sign({ _id: user._id, email: user.email }, tokenSecret, { expiresIn: "7d" });
