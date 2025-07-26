@@ -11,7 +11,6 @@ dotenv.config();
 const { tokenSecret } = process.env;
 
 const router = express.Router();
-// ✅ Send reset link (email)
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
   try {
@@ -33,7 +32,6 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-// ✅ Reset password
 router.post("/reset-password", async (req, res) => {
   const { token, newPassword } = req.body;
   try {
@@ -55,20 +53,16 @@ router.post("/reset-password", async (req, res) => {
 export default router;
 
 
-// ✅ Change password (authenticated user)
 
 router.post("/changePassword", authenticateUser, async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   try {
-    // Find user by id from token
     const user = await Users.findById(req.user._id);
     if (!user) return sendResponse(res, 404, null, true, "User not found");
 
-    // Check old password
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) return sendResponse(res, 400, null, true, "Old password is incorrect");
 
-    // Hash and set new password
     const hashPass = await bcrypt.hash(newPassword, 10);
     user.password = hashPass;
     await user.save();

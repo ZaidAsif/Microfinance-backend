@@ -82,7 +82,7 @@ router.post("/apply", async (req, res) => {
         subcategory,
         amount,
         period,
-        monthlyInstallment, // Add calculated installment
+        monthlyInstallment, 
       });
   
       await newLoan.save();

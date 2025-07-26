@@ -3,13 +3,12 @@ import fs from 'fs';
 import path from 'path';
 
 export const generatePDFSlip = async ({ token, date, time, location, user }) => {
-  const fileName = `${token}.pdf`; // File name should be unique, like MF-1234.pdf
+  const fileName = `${token}.pdf`; 
   const filePath = path.join('/tmp', fileName); // Saving in /tmp directory for serverless
 
   const doc = new PDFDocument();
   doc.pipe(fs.createWriteStream(filePath));
 
-  // PDF content
   doc.fontSize(24).text("Microfinance Loan Slip", { align: 'center' });
   doc.moveDown();
   doc.fontSize(16).text(`Token No: ${token}`);
@@ -23,5 +22,5 @@ export const generatePDFSlip = async ({ token, date, time, location, user }) => 
 
   doc.end();
 
-  return filePath; // Return the file path in /tmp
+  return filePath; 
 };

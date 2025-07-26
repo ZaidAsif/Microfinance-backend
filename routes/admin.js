@@ -143,7 +143,6 @@ router.delete(
     try {
       const { id } = req.params;
 
-      // Delete the user
       const deletedUser = await Users.findByIdAndDelete(id);
 
       if (!deletedUser) {
@@ -166,12 +165,10 @@ router.post(
     try {
       const { name, email, cnic, password, isAdmin } = req.body;
 
-      // Check if all required fields are provided
       if (!name || !email || !cnic || !password || isAdmin === undefined) {
         return sendResponse(res, 400, null, true, "All fields are required.");
       }
 
-      // Check if user already exists by email or CNIC
       const existingUserByEmail = await Users.findOne({ email });
       const existingUserByCnic = await Users.findOne({ cnic });
 
@@ -195,7 +192,6 @@ router.post(
         );
       }
 
-      // Hash the password before saving
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create new user
