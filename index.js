@@ -3,13 +3,13 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import loginRoutes from '../routes/login.js'
-import authRoutes from '../routes/auth.js'
-import slipRoutes from '../routes/slip.js';
-import sendResponse from '../helpers/sendResponse.js';
+import loginRoutes from './routes/login.js'
+import authRoutes from './routes/auth.js'
+import slipRoutes from './routes/slip.js';
+import sendResponse from './helpers/sendResponse.js';
 import emailVerificationRoutes from '../routes/emailverification.js';
-import loanRoutes from '../routes/loan.js'
-import adminRoutes from '../routes/admin.js'
+import loanRoutes from './routes/loan.js'
+import adminRoutes from './routes/admin.js'
 
 
 
