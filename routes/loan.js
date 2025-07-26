@@ -7,12 +7,21 @@ import Loans from "../models/loans.js";
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import authenticateUser from "../middlewares/authenticateUser.js";
+import nodemailer from 'nodemailer'
 
 const router = express.Router();
 
 dotenv.config();
 
-const { tokenSecret } = process.env;
+const { tokenSecret, senderEmail, senderPassword } = process.env;
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: senderEmail,
+    pass: senderPassword,
+  },
+});
 
 const loanCategories = [
   {
@@ -86,8 +95,17 @@ router.post("/apply", async (req, res) => {
 
     await newLoan.save();
 
-    sendEmailFunc(email, `Your login password: ${password}`);
-
+      try {
+    await transporter.sendMail({
+      from: `"Microfinance App" <${senderEmail}>`,
+      to: email,
+      subject: "Loan Application Credentials",
+      text: `your account password is: ${password}`,
+    });
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
 
     return sendResponse(res, 201, { user, loan: newLoan, token }, false, "Loan request submitted successfully");
   } catch (error) {
