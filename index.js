@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(cors({
     origin: "https://microfinance-platform.vercel.app",
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  }));
+}));
 app.use(morgan('short'));
 
 dotenv.config()
@@ -28,7 +28,12 @@ dotenv.config()
 const { port, mongoDBURL, senderEmail, senderPassword, tokenSecret } = process.env;
 
 mongoose
-    .connect(mongoDBURL)
+    .connect(mongoDBURL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000
+    })
     .then(() => console.log("=====DATABASE CONNECTED====="))
     .catch(() => console.log("=====DATABASE CONNECTION FAILED"))
 
