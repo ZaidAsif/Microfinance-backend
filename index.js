@@ -7,7 +7,7 @@ import loginRoutes from './routes/login.js'
 import authRoutes from './routes/auth.js'
 import slipRoutes from './routes/slip.js';
 import sendResponse from './helpers/sendResponse.js';
-import emailVerificationRoutes from '../routes/emailverification.js';
+import emailVerificationRoutes from './routes/emailverification.js';
 import loanRoutes from './routes/loan.js'
 import adminRoutes from './routes/admin.js'
 
