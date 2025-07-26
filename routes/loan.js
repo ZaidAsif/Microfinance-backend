@@ -12,33 +12,33 @@ const router = express.Router();
 
 dotenv.config();
 
-const {tokenSecret} = process.env;
+const { tokenSecret } = process.env;
 
 const loanCategories = [
-    {
-        name: "Wedding Loans",
-        subcategories: ["Valima", "Furniture", "Valima Food", "Jahez"],
-        maxLoan: 500000,
-        duration: 3,
-    },  
-    {
-        name: "Home Construction Loans",
-        subcategories: ["Structure", "Finishing", "Loan"],
-        maxLoan: 1000000,
-        duration: 5,
-    },
-    {
-        name: "Business Startup Loans",
-        subcategories: ["Buy Stall", "Advance Rent for Shop", "Shop Assets", "Shop Machinery"],
-        maxLoan: 1000000,
-        duration: 5,
-    },
-    {
-        name: "Education Loans",
-        subcategories: ["University Fees", "Child Fees Loan"],
-        maxLoan: 100000,
-        duration: 4,
-    },
+  {
+    name: "Wedding Loans",
+    subcategories: ["Valima", "Furniture", "Valima Food", "Jahez"],
+    maxLoan: 500000,
+    duration: 3,
+  },
+  {
+    name: "Home Construction Loans",
+    subcategories: ["Structure", "Finishing", "Loan"],
+    maxLoan: 1000000,
+    duration: 5,
+  },
+  {
+    name: "Business Startup Loans",
+    subcategories: ["Buy Stall", "Advance Rent for Shop", "Shop Assets", "Shop Machinery"],
+    maxLoan: 1000000,
+    duration: 5,
+  },
+  {
+    name: "Education Loans",
+    subcategories: ["University Fees", "Child Fees Loan"],
+    maxLoan: 100000,
+    duration: 4,
+  },
 ];
 
 
@@ -47,7 +47,7 @@ const loanCategories = [
 
 
 router.get('/categories', (req, res) => {
-    sendResponse(res, 200, loanCategories, false, 'Successfully retrived loan categories');
+  sendResponse(res, 200, loanCategories, false, 'Successfully retrived loan categories');
 });
 
 
@@ -56,61 +56,63 @@ router.get('/categories', (req, res) => {
 
 
 router.post("/apply", async (req, res) => {
-    try {
-      const { email, name, cnic, category, subcategory, amount, period, monthlyInstallment } = req.body;
-  
-      let user = await Users.findOne({ email });
-  
-      let password;
-      if (!user) {
-        password = Math.random().toString(36).slice(-8); 
-        const hashedPassword = await bcrypt.hash(password, 10);
-  
-        user = new Users({ name, email, cnic, password: hashedPassword });
-        await user.save();
-  
-        sendEmailFunc(email, `Your login password: ${password}`);
-      }
-  
-      const token = jwt.sign({ _id: user._id, email: user.email }, tokenSecret, { expiresIn: "7d" });
-  
+  try {
+    const { email, name, cnic, category, subcategory, amount, period, monthlyInstallment } = req.body;
 
-  
-      const newLoan = new Loans({
-        userId: user._id,
-        category,
-        subcategory,
-        amount,
-        period,
-        monthlyInstallment, 
-      });
-  
-      await newLoan.save();
-  
-      return sendResponse(res, 201, { user, loan: newLoan, token }, false, "Loan request submitted successfully");
-    } catch (error) {
-      console.error(error);
-      return sendResponse(res, 500, null, true, "Error submitting loan request");
+    let user = await Users.findOne({ email });
+
+    let password;
+    if (!user) {
+      password = Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      user = new Users({ name, email, cnic, password: hashedPassword });
+      await user.save();
+
     }
-  });
+
+    const token = jwt.sign({ _id: user._id, email: user.email }, tokenSecret, { expiresIn: "7d" });
 
 
 
-  router.get("/myLoans", authenticateUser, async (req, res) => {
-    try {
-      const userLoans = await Loans.find({ userId: req.user._id });
-  
-      console.log(userLoans);
-      if (!userLoans.length > 0) {
-        return sendResponse(res, 404, null, true, "No loan requests found.");
-      }
-  
-      sendResponse(res, 200, userLoans, false, "Loans fetched successfully!");
-    } catch (error) {
-      console.error("Error fetching loans:", error);
-      sendResponse(res, 500, null, true, "Failed to fetch loan details.");
+    const newLoan = new Loans({
+      userId: user._id,
+      category,
+      subcategory,
+      amount,
+      period,
+      monthlyInstallment,
+    });
+
+    await newLoan.save();
+
+    sendEmailFunc(email, `Your login password: ${password}`);
+
+
+    return sendResponse(res, 201, { user, loan: newLoan, token }, false, "Loan request submitted successfully");
+  } catch (error) {
+    console.error(error);
+    return sendResponse(res, 500, null, true, "Error submitting loan request");
+  }
+});
+
+
+
+router.get("/myLoans", authenticateUser, async (req, res) => {
+  try {
+    const userLoans = await Loans.find({ userId: req.user._id });
+
+    console.log(userLoans);
+    if (!userLoans.length > 0) {
+      return sendResponse(res, 404, null, true, "No loan requests found.");
     }
-  });
+
+    sendResponse(res, 200, userLoans, false, "Loans fetched successfully!");
+  } catch (error) {
+    console.error("Error fetching loans:", error);
+    sendResponse(res, 500, null, true, "Failed to fetch loan details.");
+  }
+});
 
 
 router.get("/myPendingLoans", authenticateUser, async (req, res) => {
@@ -133,8 +135,8 @@ export default router;
 
 router.post("/pendingLoanDetail", authenticateUser, async (req, res) => {
   try {
-    const loanDetail = await Loans.find({userId: req.user._id, status: "Pending", _id: req.body.id});
-        if (!loanDetail.length > 0) {
+    const loanDetail = await Loans.find({ userId: req.user._id, status: "Pending", _id: req.body.id });
+    if (!loanDetail.length > 0) {
       return sendResponse(res, 404, null, true, "No pending loan requests found.");
     }
 
