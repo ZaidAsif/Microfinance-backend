@@ -13,7 +13,7 @@
     }
   ],
   "functions": {
-    "helpers/sendEmailFunc.js": {
+    "api/sendEmailFunc.js": {
       "timeout": 30
     }
   }
